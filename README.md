@@ -24,6 +24,31 @@ data:
 
 # Network
 
+Service
+
+```virtualMachine
+template:
+    metadata:
+      labels:
+        app: [app-label]
+```
+
+```virtualMachine
+apiVersion: v1
+kind: Service
+metadata:
+  name: [app-label]
+  namespace: [namespace]
+spec:
+  type: ClusterIP
+  selector:
+    app: [app-label]
+  ports:
+    - protocol: TCP
+      port: [port]
+      targetPort: [targetport]
+```
+
 oc expose service/static --path=/static --hostname=[hostname]****
 
 oc edit vm [virtual-machine] -n [namespace]
