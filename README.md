@@ -131,3 +131,32 @@ spec:
         example-key-1: example-value-1
         example-key-2: example-value-2
 ...output omitted...
+```
+
+# Probes
+
+```probes
+metadata:
+  name: example-vm-node-selector
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+spect:
+  template:
+    spec:
+      domain:
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 80
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 2
+          failureThreshold: 2
+          successThreshold: 1
+        livenessProbe:
+          tcpSocket:
+            port: [port]
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        evictionStrategy: LiveMigrate
+```
