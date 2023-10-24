@@ -24,7 +24,7 @@ data:
 
 # Network
 
-Service
+Virtual Machone
 
 ```virtualMachine
 template:
@@ -33,7 +33,9 @@ template:
         app: [app-label]
 ```
 
-```virtualMachine
+Service
+
+```service
 apiVersion: v1
 kind: Service
 metadata:
@@ -47,6 +49,25 @@ spec:
     - protocol: TCP
       port: [port]
       targetPort: [targetport]
+```
+
+NetworkPolicy
+
+```service
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: [np-name]
+spec:
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          app: [app-label]
+    ports:
+    - port: [port]
+      protocol: TCP
+  podSelector: {}
 ```
 
 oc expose service/static --path=/static --hostname=[hostname]****
