@@ -91,3 +91,41 @@ spec:
     "vlan": 0 
   }
 ```
+# Node selector
+
+Node Selector
+```
+metadata:
+  name: example-vm-node-selector
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+spec:
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: example.io/example-key
+            operator: In
+            values:
+            - example-value-1
+            - example-value-2
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 1
+        preference:
+          matchExpressions:
+          - key: example-node-label-key
+            operator: In
+            values:
+            - example-node-label-value
+  tolerations:
+  - key: "key"
+    operator: "Equal"
+    value: "virtualization"
+    effect: "NoSchedule"
+  template:
+    spec:
+      nodeSelector:
+        example-key-1: example-value-1
+        example-key-2: example-value-2
+...output omitted...
