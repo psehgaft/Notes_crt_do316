@@ -125,6 +125,8 @@ spec:
     effect: "NoSchedule"
   template:
     spec:
+      evictionStrategy: LiveMigrate    #######
+      runStrategy: RerunOnFailure      #######
       nodeSelector:
         example-key-1: example-value-1
         example-key-2: example-value-2
