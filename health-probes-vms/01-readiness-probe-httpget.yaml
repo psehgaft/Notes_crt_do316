@@ -1,0 +1,60 @@
+# Readiness probe — HTTP GET
+# VM: www1 (web server on 8080). If it fails, the VM IP is removed
+# from the Service endpoints until it succeeds again. VM keeps running.
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  name: www1
+  labels:
+    app: www1
+    app.psehgaft.org/name: www1
+spec:
+  running: true
+  template:
+    metadata:
+      labels:
+        app: www1
+    spec:
+      domain:
+        devices:
+          disks:
+            - name: rootdisk
+              disk:
+                bus: virtio
+          interfaces:
+            - name: default
+              masquerade: {}
+        resources:
+          requests:
+            memory: 2Gi
+      networks:
+        - name: default
+          pod: {}
+      volumes:
+        - name: rootdisk
+          containerDisk:
+            image: registry.psehgaft.org/rhel9-web:latest
+      # --- Probe lives here: spec.template.spec ---
+      readinessProbe:
+        httpGet:
+          path: /health        # App must return 200-399 on this endpoint
+          port: 8080
+          host: www1.psehgaft.org
+        initialDelaySeconds: 120  # Wait after VM start before first check
+        periodSeconds: 20         # Check every 20s (default: 10s)
+        timeoutSeconds: 10        # Fail if no answer in 10s (default: 1s)
+        failureThreshold: 3       # 3 consecutive failures = not ready
+        successThreshold: 3       # 3 consecutive successes = ready again
+---
+# Service whose endpoints follow the readiness result
+apiVersion: v1
+kind: Service
+metadata:
+  name: www1
+spec:
+  selector:
+    app: www1
+  ports:
+    - port: 80
+      targetPort: 8080
+      protocol: TCP

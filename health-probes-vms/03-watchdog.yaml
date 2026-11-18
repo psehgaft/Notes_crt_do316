@@ -1,0 +1,45 @@
+# Watchdog device — OS-level only (not application-level)
+# Emulated Intel 6300ESB with a 30s timer. The OS must refresh the
+# timer; if the OS hangs, the timer expires and the action runs.
+# Use ONLY when no liveness probe can test the application.
+# RHEL loads the i6300esb kernel module automatically.
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  name: mariadb-server
+  labels:
+    app: mariadb-server
+spec:
+  running: true
+  template:
+    metadata:
+      labels:
+        app: mariadb-server
+    spec:
+      domain:
+        devices:
+          disks:
+            - name: rootdisk
+              disk:
+                bus: virtio
+          interfaces:
+            - name: default
+              masquerade: {}
+          rng: {}
+          # --- Watchdog lives here: spec.template.spec.domain.devices ---
+          watchdog:
+            name: mywatchdog
+            i6300esb:           # Only device OpenShift Virtualization emulates
+              action: poweroff  # poweroff | reset | shutdown
+              # poweroff: VM stops, then restarts per .spec.running /
+              # .spec.runStrategy
+        resources:
+          requests:
+            memory: 4Gi
+      networks:
+        - name: default
+          pod: {}
+      volumes:
+        - name: rootdisk
+          containerDisk:
+            image: registry.psehgaft.org/rhel9-mariadb:latest
