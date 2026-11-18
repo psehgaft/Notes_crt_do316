@@ -12,6 +12,7 @@ Personal study notes for managing virtual machines with Red Hat OpenShift Virtua
 - [Network](#network)
 - [Node placement](#node-placement)
 - [Probes](#probes)
+- [Health probes for VMs (exercise)](#health-probes-for-vms-exercise)
 
 ## RBAC
 
@@ -183,3 +184,13 @@ spec:
           periodSeconds: 5
         evictionStrategy: LiveMigrate
 ```
+
+## Health probes for VMs (exercise)
+
+YAML-first exercise: configure `readinessProbe` (`httpGet` on `www1:8080/health`, host `www1.psehgaft.org`), `livenessProbe` (`tcpSocket` on `mariadb-server:3306`), and a `watchdog` device (`i6300esb`, `action: poweroff`).
+
+Full summary and ready-to-apply YAMLs: [`health-probes-vms/`](health-probes-vms/README.md)
+
+- [`01-readiness-probe-httpget.yaml`](health-probes-vms/01-readiness-probe-httpget.yaml)
+- [`02-liveness-probe-tcpsocket.yaml`](health-probes-vms/02-liveness-probe-tcpsocket.yaml)
+- [`03-watchdog.yaml`](health-probes-vms/03-watchdog.yaml)

@@ -1,0 +1,46 @@
+# Liveness probe — TCP socket
+# VM: mariadb-server (DB on 3306, no HTTP). If it fails, OpenShift
+# Virtualization deletes the VMI and redeploys a new instance.
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  name: mariadb-server
+  labels:
+    app: mariadb-server
+    app.psehgaft.org/name: mariadb-server
+spec:
+  running: true
+  template:
+    metadata:
+      labels:
+        app: mariadb-server
+    spec:
+      domain:
+        devices:
+          disks:
+            - name: rootdisk
+              disk:
+                bus: virtio
+          interfaces:
+            - name: default
+              masquerade: {}
+        resources:
+          requests:
+            memory: 4Gi
+      networks:
+        - name: default
+          pod: {}
+      volumes:
+        - name: rootdisk
+          containerDisk:
+            image: registry.psehgaft.org/rhel9-mariadb:latest
+      # --- Probe lives here: spec.template.spec ---
+      livenessProbe:
+        tcpSocket:              # Succeeds if TCP connect to the port works
+          port: 3306
+          host: mariadb.psehgaft.org
+        initialDelaySeconds: 120
+        periodSeconds: 20
+        timeoutSeconds: 10
+        failureThreshold: 3
+        successThreshold: 1    # Default for liveness: 1 success
